@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc main.c -o caesar
+gcc 'source/cli/main.c' -o 'build/bin/caesar-cli'

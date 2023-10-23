@@ -5,7 +5,7 @@
 #include <string.h>
 
 void help() {
-  printf("Usage: caesar [OPERATION] [KEY] [MSG]\n\n");
+  printf("Usage: caesar-cli [OPERATION] [KEY] [MSG]\n\n");
   printf("operations:\nenc – encrypt\ndec – decrypt\n\n");
   printf("Caesar cipher cli tool by Michał Łasocha 2023\n\n");
 }
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     if (key_valid(argv[2]) == false) {
       printf("ERROR: invalid key format\n\n");
       help();
-      return 1;
+      return 2;
     }
     int k = atoi(argv[2]);
     // Without this, encryption breaks at < 26 shift
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
   } else {
     printf("ERROR: Not enough arguments!\n\n");
     help();
-    return 1;
+    return 3;
   }
 
   return 0;

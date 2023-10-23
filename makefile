@@ -24,6 +24,7 @@ debug: CFLAGS   += $(RELEASE_CFLAGS)
 debug: LDFLAGS  += $(DEBUG_LDFLAGS)
 debug: options $(BIN) | mkdirs
 
+
 options:
 	@echo Build options:
 	@echo ""
@@ -39,12 +40,12 @@ $(BIN): $(OBJ) | mkdirs
 
 #General rule for compiling object files
 #make a specific rule if you depend on a header you might change
-$(BLD)/%.o : $(SRC)/%.c | mkdirs
+$(BLD)/%.o : $(SRC_FRONT)/%.c | mkdirs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 #Specific rules
-$(BLD)/main.o : $(SRC)/main.c $(SRC)/version.h $(BLD)/data.h | mkdirs
-$(BLD)/version.o : $(SRC)/version.c $(SRC)/version.h | mkdirs
+$(BLD)/main.o : $(SRC_FRONT)/main.c $(SRC_FRONT)/version.h $(BLD)/data.h | mkdirs
+$(BLD)/version.o : $(SRC_FRONT)/version.c $(SRC_FRONT)/version.h | mkdirs
 $(BLD)/data.o : $(BLD)/data.c $(BLD)/data.h | mkdirs
 
 $(BLD)/data.c : $(BLD)/data.gresource.xml $(RESOURCES) | mkdirs
@@ -97,6 +98,6 @@ clean :
 	$(RM) $(DATA)/*.glade~ $(DATA)/*.glade# $(BLD)/**
 
 format :
-	clang-format -style="{BasedOnStyle: webkit, IndentWidth: 8,AlignConsecutiveDeclarations: true, AlignConsecutiveAssignments: true, ReflowComments: true, SortIncludes: true}" -i $(SRC)/*.{c,h}
+	clang-format -style="{BasedOnStyle: webkit, IndentWidth: 8,AlignConsecutiveDeclarations: true, AlignConsecutiveAssignments: true, ReflowComments: true, SortIncludes: true}" -i $(SRC_FRONT)/*.{c,h}
 
 .PHONY: all options debug install uninstall clean format mkdirs

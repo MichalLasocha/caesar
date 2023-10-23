@@ -2,15 +2,15 @@ SHELL ?= /bin/sh
 
 #app info
 VERSION    ?= 0.0.1
-TARGET     ?= template_app
-NAME       ?= Template App
+TARGET     ?= caesar
+NAME       ?= Caesar
 #APP_ID can start with a website or email in reverse url format
 APP_ID     ?= com.email.name.$(TARGET)
 #APP_PREFIX is APP_ID converted to a path.
 APP_PREFIX ?= $(shell echo $(APP_ID) | sed 's:\.:/:g;s:^:/:g')
 COPYRIGHT  ?= Copyright (C) 2021
-AUTHOR     ?= [Your name here]
-COMMENT    ?= GTK+ 3.0 template Application
+AUTHOR     ?= Michał Łasocha
+COMMENT    ?= Cli cryptography tool with an optional gui
 CATEGORIES ?= Utility;ComputerScience;GNOME;GTK;
 
 # Customize below to fit your system
@@ -22,9 +22,10 @@ PREFIX ?= /usr
 PD = $(shell pwd)
 
 #Build/Source paths
-SRC     ?= $(PD)/source
-BLD     ?= $(PD)/build
-DATA    ?= $(SRC)/data
+SRC_FRONT ?= $(PD)/source/frontend
+SRC_CLI 	?= $(PD)/source/cli
+BLD     	?= $(PD)/build
+DATA    	?= $(SRC_FRONT)/data
 
 #Files
 BIN       ?= $(BLD)/bin/$(TARGET)
