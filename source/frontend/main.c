@@ -52,15 +52,24 @@ gint getKey() {
 const gchar *getPlain() { return gtk_entry_get_text(GTK_ENTRY(inputPlain)); }
 const gchar *getEnc() { return gtk_entry_get_text(GTK_ENTRY(inputEnc)); }
 
-char *get_encrypted(char *plain) {
-  char command = strcpy("caesar enc ", plain);
-  return system(command);
+char *fetch_enc(gchar *plain, gint key) {
+  FILE *out
+  printf("Doing systemcall to caesar-cli\n");
+  char command = concat(4,"caesar-cli enc ", key, " ", plain);
+  out = popen(command);
+  return out;
 }
 
 void on_buttonEnc_clicked(GtkButton *button) {
-  printf("enc clicked\n");
-  g_print("key: %d\n", getKey());
-  g_print("Plain: %s\n", getPlain());
+  if(getPlain() != NULL ){
+
+  gchar  enc_out = fetch_enc(getPlain(),getKey());
+  gtk_entry_set_text(GTK_ENTRY(inputPlain), (const gchar *)"Hello World");
+
+  }
+  // printf("enc clicked\n");
+  // g_print("key: %d\n", getKey());
+  // g_print("Plain: %s\n", getPlain());
 }
 
 void on_buttonDec_clicked(GtkButton *button) {
