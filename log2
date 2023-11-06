@@ -1,0 +1,10 @@
+button action
+fetchEnc called
+caesar-cli enc 4 "This will test" | cut -c9-
+2(ákdUXlmw ampp xiwx
+
+button action
+fetchEnc called
+caesar-cli enc 6 "This will test" | cut -c9-
+	ýkdUZnoy corr zkyz
+

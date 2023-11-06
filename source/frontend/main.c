@@ -3,12 +3,11 @@
 #include "data.h"
 #include "version.h"
 #include <gtk/gtk.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-/* The macros VERSION, NAME, TARGET, AUTHOR and COPYRIGHT are available for this
-program to reference information about itself. These macros are defined in
-config.mk*/
+// declarations
 
 GtkBuilder *builder;
 GtkWidget *window;
@@ -32,7 +31,7 @@ int main(int argc, char *argv[]) {
 
   gtk_builder_connect_signals(builder, NULL);
   // g_object_unref(builder);
-
+  // bindings
   window = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
   buttonEnc = GTK_WIDGET(gtk_builder_get_object(builder, "buttonEnc"));
   buttonDec = GTK_WIDGET(gtk_builder_get_object(builder, "buttonDec"));
@@ -52,20 +51,74 @@ gint getKey() {
 const gchar *getPlain() { return gtk_entry_get_text(GTK_ENTRY(inputPlain)); }
 const gchar *getEnc() { return gtk_entry_get_text(GTK_ENTRY(inputEnc)); }
 
-char *fetch_enc(gchar *plain, gint key) {
-  FILE *out
-  printf("Doing systemcall to caesar-cli\n");
-  char command = concat(4,"caesar-cli enc ", key, " ", plain);
-  out = popen(command);
-  return out;
+char *fetchEnc(const gchar *plain, gint key, bool isEnc) {
+  char baseCommand[15] = "caesar-cli enc";
+
+  if (isEnc) {
+    baseCommand[11] = 'd';
+    baseCommand[12] = 'e';
+  }
+
+  char fullCommand[512];
+  snprintf(fullCommand, sizeof(fullCommand), "%s %d \"%s\" | cut -c9-",
+           baseCommand, key, plain);
+
+
+  printf("%s\n", fullCommand);
+
+  FILE *pipe = popen(fullCommand, "r");
+  if (pipe == NULL) {
+    perror("popen");
+    return NULL;
+  }
+
+  size_t buffer_size = 128; 
+    char* buffer = (char*)malloc(buffer_size);
+    if (buffer == NULL) {
+        perror("malloc");
+        return NULL;
+    }
+
+  char *result = NULL;
+  size_t result_size = 0;
+
+  // Read the command's output and store it in the result buffer
+  while (fgets(buffer, buffer_size, pipe) != NULL) {
+    // Calculate the length of the data read from the buffer
+    size_t len = strlen(buffer);
+
+    // Allocate memory for the result and append the data
+    const char *new_result = (char *)realloc(
+        result, result_size + len + 1); // +1 for the null terminator
+    if (new_result == NULL) {
+      perror("realloc");
+      free(result);
+      free(buffer);
+      return NULL;
+    }
+    result = new_result;
+    strcpy(result + result_size, buffer); // Append the data
+    result_size += len;
+  }
+  // if (result_size > 0) {
+  //   result[result_size] = '\0';
+  // }
+
+  pclose(pipe);
+
+  printf("%s\n", result);
+  return result;
 }
 
 void on_buttonEnc_clicked(GtkButton *button) {
-  if(getPlain() != NULL ){
+  if (getPlain() != NULL) {
 
-  gchar  enc_out = fetch_enc(getPlain(),getKey());
-  gtk_entry_set_text(GTK_ENTRY(inputPlain), (const gchar *)"Hello World");
+    const gchar *enc_out = fetchEnc(getPlain(), getKey(), true);
 
+    if (enc_out != NULL) {
+      gtk_entry_set_text(GTK_ENTRY(inputEnc), enc_out);
+      free(enc_out);
+    }
   }
   // printf("enc clicked\n");
   // g_print("key: %d\n", getKey());
@@ -73,10 +126,15 @@ void on_buttonEnc_clicked(GtkButton *button) {
 }
 
 void on_buttonDec_clicked(GtkButton *button) {
-  printf("dec clicked\n");
-  g_print("key: %d\n", getKey());
+  if (getEnc() != NULL) {
 
-  gtk_entry_set_text(GTK_ENTRY(inputPlain), (const gchar *)"Hello World");
+    const gchar *dec_out = fetchEnc(getEnc(), getKey(), false);
+
+    if (dec_out != NULL) {
+      gtk_entry_set_text(GTK_ENTRY(inputPlain), dec_out);
+      free(dec_out);
+    }
+  }
 }
 
 void on_window_main_destroy() { gtk_main_quit(); }
