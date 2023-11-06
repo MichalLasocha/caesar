@@ -49,7 +49,9 @@ gint getKey() {
   return gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(inputKey));
 }
 const gchar *getPlain() { return gtk_entry_get_text(GTK_ENTRY(inputPlain)); }
+gint *getPlainL() { return gtk_entry_get_text_length(GTK_ENTRY(inputPlain)); }
 const gchar *getEnc() { return gtk_entry_get_text(GTK_ENTRY(inputEnc)); }
+gint *getEncL() { return gtk_entry_get_text_length(GTK_ENTRY(inputEnc)); }
 
 char *fetchEnc(const gchar *plain, gint key, bool isEnc) {
   char baseCommand[15] = "caesar-cli enc";
@@ -63,7 +65,6 @@ char *fetchEnc(const gchar *plain, gint key, bool isEnc) {
   snprintf(fullCommand, sizeof(fullCommand), "%s %d \"%s\" | cut -c9-",
            baseCommand, key, plain);
 
-
   printf("%s\n", fullCommand);
 
   FILE *pipe = popen(fullCommand, "r");
@@ -72,24 +73,20 @@ char *fetchEnc(const gchar *plain, gint key, bool isEnc) {
     return NULL;
   }
 
-  size_t buffer_size = 128; 
-    char* buffer = (char*)malloc(buffer_size);
-    if (buffer == NULL) {
-        perror("malloc");
-        return NULL;
-    }
+  size_t buffer_size = 128;
+  char *buffer = (char *)malloc(buffer_size);
+  if (buffer == NULL) {
+    perror("malloc");
+    return NULL;
+  }
 
   char *result = NULL;
   size_t result_size = 0;
 
-  // Read the command's output and store it in the result buffer
   while (fgets(buffer, buffer_size, pipe) != NULL) {
-    // Calculate the length of the data read from the buffer
     size_t len = strlen(buffer);
 
-    // Allocate memory for the result and append the data
-    const char *new_result = (char *)realloc(
-        result, result_size + len + 1); // +1 for the null terminator
+    const char *new_result = (char *)realloc(result, result_size + len + 1);
     if (new_result == NULL) {
       perror("realloc");
       free(result);
@@ -100,9 +97,6 @@ char *fetchEnc(const gchar *plain, gint key, bool isEnc) {
     strcpy(result + result_size, buffer); // Append the data
     result_size += len;
   }
-  // if (result_size > 0) {
-  //   result[result_size] = '\0';
-  // }
 
   pclose(pipe);
 
@@ -111,8 +105,11 @@ char *fetchEnc(const gchar *plain, gint key, bool isEnc) {
 }
 
 void on_buttonEnc_clicked(GtkButton *button) {
-  if (getPlain() != NULL) {
-
+  printf("%d\n", getPlainL());
+  if (getPlainL() == 0) {
+    gtk_label_set_text(GTK_ENTRY(labelStatus),
+                       (const gchar *)"Plain input is empty!");
+  } else {
     const gchar *enc_out = fetchEnc(getPlain(), getKey(), true);
 
     if (enc_out != NULL) {
@@ -120,14 +117,13 @@ void on_buttonEnc_clicked(GtkButton *button) {
       free(enc_out);
     }
   }
-  // printf("enc clicked\n");
-  // g_print("key: %d\n", getKey());
-  // g_print("Plain: %s\n", getPlain());
 }
 
 void on_buttonDec_clicked(GtkButton *button) {
-  if (getEnc() != NULL) {
-
+  if (getEncL() == 0) {
+    gtk_label_set_text(GTK_ENTRY(labelStatus),
+                       (const gchar *)"Ecrypted input is empty!");
+  } else {
     const gchar *dec_out = fetchEnc(getEnc(), getKey(), false);
 
     if (dec_out != NULL) {
