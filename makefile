@@ -17,7 +17,7 @@ ROOTCHECK = \
 
 all: CFLAGS  += $(RELEASE_CFLAGS)
 all: LDFLAGS += $(RELEASE_LDFLAGS)
-all: options $(BIN) $(DESKTOP) | mkdirs
+all: options $(BIN) $(DESKTOP) $(BLD)/bin/caesar-cli | mkdirs
 
 debug: CPPFLAGS += $(DEBUG_CPPFLAGS)
 debug: CFLAGS   += $(RELEASE_CFLAGS)
@@ -38,6 +38,15 @@ options:
 $(BIN): $(OBJ) | mkdirs
 	$(CC) -o $@ $(OBJ) $(LDFLAGS)
 
+CLI_SRC = $(SRC_CLI)/main.c
+CLI_OBJ = $(BLD)/caesar-cli.o
+
+$(CLI_OBJ): $(CLI_SRC) | mkdirs
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(BLD)/bin/caesar-cli: $(CLI_OBJ) | mkdirs
+	$(CC) -o $@ $(CLI_OBJ) $(LDFLAGS)
+
 #General rule for compiling object files
 #make a specific rule if you depend on a header you might change
 $(BLD)/%.o : $(SRC_FRONT)/%.c | mkdirs
@@ -47,7 +56,6 @@ $(BLD)/%.o : $(SRC_FRONT)/%.c | mkdirs
 $(BLD)/main.o : $(SRC_FRONT)/main.c $(SRC_FRONT)/version.h $(BLD)/data.h | mkdirs
 $(BLD)/version.o : $(SRC_FRONT)/version.c $(SRC_FRONT)/version.h | mkdirs
 $(BLD)/data.o : $(BLD)/data.c $(BLD)/data.h | mkdirs
-
 $(BLD)/data.c : $(BLD)/data.gresource.xml $(RESOURCES) | mkdirs
 	cd $(DATA);\
 	glib-compile-resources --generate-source $< --target=$@;\
@@ -78,7 +86,9 @@ install : all
 	$(ROOTCHECK)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	$(CP) $(BIN) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	$(CP) $(BLD)/bin/caesar-cli $(DESTDIR)$(PREFIX)/bin/caesar-cli
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	chmod 755 $(DESTDIR)$(PREFIX)/bin/caesar-cli
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
 	$(CP) $(BLD)/$(TARGET).desktop $(DESTDIR)$(PREFIX)/share/applications/$(TARGET).desktop
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps
