@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     if (key_valid(argv[2]) == false) {
       printf("ERROR: invalid key format\n\n");
       help();
-      return 2;
+      exit (2);
     }
     int k = atoi(argv[2]);
     // Without this, encryption breaks at < 26 shift
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
       printf("ERROR: invalid operation:%s\n", argv[1]);
       help();
-      return 1;
+      exit(1);
     }
     // Output
     printf("cipher: %s\n", in);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
   } else {
     printf("ERROR: Not enough arguments!\n\n");
     help();
-    return 3;
+    exit(3);
   }
 
   return 0;
