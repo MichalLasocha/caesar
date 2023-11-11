@@ -143,6 +143,7 @@ char *fetchEnc(const gchar *plain, gint key, bool isDec) {
 
   pclose(pipe);
 
+  result[result_size-1] = '\0';
   printf("%s\n", result);
   return result;
 }
@@ -157,7 +158,7 @@ void on_buttonEnc_clicked(GtkButton *button) {
 
     if (enc_out != NULL) {
       gtk_entry_set_text(GTK_ENTRY(inputEnc), enc_out);
-      gtk_label_set_text(GTK_ENTRY(labelStatus), (const gchar *)"");
+      gtk_label_set_text(GTK_ENTRY(labelStatus), (const gchar *)"Message encrypted");
       free(enc_out);
     }
   }
@@ -172,7 +173,7 @@ void on_buttonDec_clicked(GtkButton *button) {
 
     if (dec_out != NULL) {
       gtk_entry_set_text(GTK_ENTRY(inputPlain), dec_out);
-      gtk_label_set_text(GTK_ENTRY(labelStatus), (const gchar *)"");
+      gtk_label_set_text(GTK_ENTRY(labelStatus), (const gchar *)"Message decrypted");
       free(dec_out);
     }
   }
